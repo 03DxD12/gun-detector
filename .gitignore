@@ -1,0 +1,10 @@
+__pycache__/
+*.pt
+runs/
+dataset/
+prepared_dataset/
+static/uploads/
+.env
+test_suite/
+*.json
+*.csv

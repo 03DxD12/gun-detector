@@ -1,0 +1,5 @@
+flask
+ultralytics
+pillow
+inference-sdk
+datasets

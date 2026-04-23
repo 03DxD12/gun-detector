@@ -1,0 +1,11 @@
+path: 'C:/Users/Denmhar/OneDrive/Desktop/Group Performance Task #3 YOLO/prepared_dataset/gun_types'
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: automatic_rifle
+  1: handgun
+  2: shotgun
+  3: smg
+  4: sniper

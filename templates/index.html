@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gun Detection</title>
+    <style>
+        :root {
+            --bg: #f2efe8;
+            --panel: #fffaf1;
+            --ink: #1d1b18;
+            --accent: #39c9d9;
+            --accent-dark: #2482a1;
+            --line: #d8cfc0;
+            --muted: #6c6256;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Georgia, "Times New Roman", serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(217, 93, 57, 0.22), transparent 28%),
+                linear-gradient(135deg, #f5f1e8, #e6dccd);
+        }
+
+        .page {
+            width: min(960px, calc(100% - 32px));
+            margin: 40px auto;
+            padding: 32px;
+            background: rgba(255, 250, 241, 0.95);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 18px 48px rgba(68, 48, 32, 0.12);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1;
+        }
+
+        p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 1.02rem;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+            padding: 18px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+        }
+
+        input[type="file"] {
+            flex: 1 1 240px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font: inherit;
+            color: #fff;
+            background: var(--accent);
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .error,
+        .result {
+            margin-top: 22px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+        }
+
+        .error {
+            color: #8b1e17;
+            border-color: #d7aaa4;
+            background: #fff1ef;
+        }
+
+        .meta {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 250, 241, 0.85);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-size: 0.95rem;
+        }
+
+        .result h2 {
+            margin: 0 0 10px;
+        }
+
+        .result img {
+            display: block;
+            width: 100%;
+            margin-top: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+        }
+
+        .detections {
+            margin-top: 14px;
+            padding-left: 18px;
+            color: var(--ink);
+        }
+
+        .detections li + li {
+            margin-top: 6px;
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                margin: 16px auto;
+                padding: 22px;
+            }
+
+            form {
+                padding: 14px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <h1>Gun Detection</h1>
+        <p>Upload an image and run either your local YOLO model or a Roboflow workflow to detect firearms.</p>
+        <p style="margin-top: 10px;">Active backend: <strong>{{ backend_name }}</strong></p>
+        <section class="meta">
+            <p>Supported labels: {% if supported_classes %}{{ supported_classes|join(", ") }}{% else %}none loaded{% endif %}</p>
+            <p style="margin-top: 8px;">Local YOLO tuning: confidence {{ "%.2f"|format(yolo_conf) }}, image size {{ yolo_imgsz }}</p>
+            {% if supported_classes %}
+                <div class="chips">
+                    {% for item in supported_classes %}
+                        <span class="chip">{{ item }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept=".jpg,.jpeg,.png,.bmp,.webp" required>
+            <button type="submit">Detect Guns</button>
+        </form>
+
+        {% if error %}
+            <section class="error">{{ error }}</section>
+        {% endif %}
+
+        {% if image %}
+            <section class="result">
+                <h2>Detection Result</h2>
+                <p>Processed file: {{ filename }}</p>
+                <img src="{{ url_for('static', filename=image) }}" alt="Detected objects">
+                {% if detections %}
+                    <h3>🔔 WEAPONS DETECTED:</h3>
+                    {% for detection in detections %}
+                        <div style="background: #ff4444; color: white; padding: 10px; margin: 5px; border-radius: 5px;">
+                            <strong>{{ detection.class }}</strong> 
+                            ({{ "%.2f"|format(detection.confidence) }}) 
+                            <span style="float:right;">BBox: {{ detection.bbox }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h3>✅ No weapons detected</h3>
+                {% endif %}
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>

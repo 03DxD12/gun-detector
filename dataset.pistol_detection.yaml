@@ -1,0 +1,7 @@
+path: 'C:/Users/Denmhar/OneDrive/Desktop/Group Performance Task #3 YOLO/prepared_dataset/pistol_detection'
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: pistol

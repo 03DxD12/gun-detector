@@ -1,0 +1,14 @@
+path: C:\Users\Denmhar\.cache\kagglehub\datasets\snehilsanyal\weapon-detection-test\versions\5\weapon_detection
+train: train/images
+val: val/images
+
+names:
+  0: automatic_rifle
+  1: bazooka
+  2: grenade_launcher
+  3: handgun
+  4: knife
+  5: shotgun
+  6: smg
+  7: sniper
+  8: sword
