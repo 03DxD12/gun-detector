@@ -35,7 +35,7 @@ ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 ROBOFLOW_WORKSPACE = os.getenv("ROBOFLOW_WORKSPACE", "")
 ROBOFLOW_WORKFLOW_ID = os.getenv("ROBOFLOW_WORKFLOW_ID", "")
 ROBOFLOW_CLASSES = os.getenv("ROBOFLOW_CLASSES", "pistol")
-YOLO_CONF = float(os.getenv("YOLO_CONF", "0.10"))
+YOLO_CONF = float(os.getenv("YOLO_CONF", "0.45"))
 YOLO_IMGSZ = int(os.getenv("YOLO_IMGSZ", "1280"))
 YOLO_AUGMENT = os.getenv("YOLO_AUGMENT", "true").lower() == "true"
 YOLO_TILE_SIZE = int(os.getenv("YOLO_TILE_SIZE", "960"))
