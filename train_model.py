@@ -19,12 +19,12 @@ def train_weapon_model():
     # In a real scenario, you'd want 50-100 epochs
     results = model.train(
         data=data_path,
-        epochs=2,
+        epochs=5,
         imgsz=640,
         batch=8,
         name='weapon_accuracy_fix',
         exist_ok=True,
-        resume=True
+        resume=False
     )
     
     print("Training complete!")

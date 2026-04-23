@@ -35,7 +35,8 @@ ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 ROBOFLOW_WORKSPACE = os.getenv("ROBOFLOW_WORKSPACE", "")
 ROBOFLOW_WORKFLOW_ID = os.getenv("ROBOFLOW_WORKFLOW_ID", "")
 ROBOFLOW_CLASSES = os.getenv("ROBOFLOW_CLASSES", "pistol")
-YOLO_CONF = float(os.getenv("YOLO_CONF", "0.45"))
+YOLO_CONF = float(os.getenv("YOLO_CONF", "0.85"))
+SINGLE_WEAPON_MODE = True  # Focus on exactly one weapon for maximum precision
 YOLO_IMGSZ = int(os.getenv("YOLO_IMGSZ", "1280"))
 YOLO_AUGMENT = os.getenv("YOLO_AUGMENT", "true").lower() == "true"
 YOLO_TILE_SIZE = int(os.getenv("YOLO_TILE_SIZE", "960"))
@@ -603,6 +604,12 @@ def predict():
             detections = detect_with_roboflow(output_path)
         else:
             detections = detect_with_yolo(output_path)
+
+        # SINGLE WEAPON MODE: Pick only the best one
+        if SINGLE_WEAPON_MODE and detections:
+            # Sort by confidence and take the best
+            detections = [sorted(detections, key=lambda x: x["confidence"], reverse=True)[0]]
+            draw_predictions(output_path, detections)
             
         if "text/html" in request.headers.get("Accept", ""):
             ui_detections = [{"class": d["class"], "confidence": d["confidence"], "bbox": d["bbox"]} for d in detections]
